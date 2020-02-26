@@ -91,14 +91,17 @@ def main():
         np.save(out_lbl_file, lbl)
 
         if not args.noviz:
-            viz = imgviz.label2rgb(
-                label=lbl,
-                img=imgviz.rgb2gray(img),
-                font_size=15,
-                label_names=class_names,
-                loc='rb',
-            )
-            imgviz.io.imsave(out_viz_file, viz)
+            try:
+                viz = imgviz.label2rgb(
+                    label=lbl,
+                    img=imgviz.rgb2gray(img),
+                    font_size=15,
+                    label_names=class_names,
+                    loc='rb',
+                )
+                imgviz.io.imsave(out_viz_file, viz)
+            except:
+                pass
 
 
 if __name__ == '__main__':
