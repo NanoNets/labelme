@@ -26,17 +26,17 @@ def main():
     )
     args = parser.parse_args()
 
-    if osp.exists(args.output_dir):
-        print('Output directory already exists:', args.output_dir)
-        sys.exit(1)
-    os.makedirs(args.output_dir)
-    os.makedirs(osp.join(args.output_dir, 'JPEGImages'))
-    os.makedirs(osp.join(args.output_dir, 'SegmentationClass'))
-    os.makedirs(osp.join(args.output_dir, 'SegmentationClassPNG'))
-    if not args.noviz:
-        os.makedirs(
-            osp.join(args.output_dir, 'SegmentationClassVisualization')
-        )
+    if not osp.exists(args.output_dir):
+        # print('Output directory already exists:', args.output_dir)
+        # sys.exit(1)
+        os.makedirs(args.output_dir)
+        os.makedirs(osp.join(args.output_dir, 'JPEGImages'))
+        os.makedirs(osp.join(args.output_dir, 'SegmentationClass'))
+        os.makedirs(osp.join(args.output_dir, 'SegmentationClassPNG'))
+        if not args.noviz:
+            os.makedirs(
+                osp.join(args.output_dir, 'SegmentationClassVisualization')
+            )
     print('Creating dataset:', args.output_dir)
 
     class_names = []
@@ -76,22 +76,24 @@ def main():
                 'SegmentationClassVisualization',
                 base + '.jpg',
             )
+        if osp.exists(out_img_file):
+            continue
 
         with open(out_img_file, 'wb') as f:
             f.write(label_file.imageData)
-        img = labelme.utils.img_data_to_arr(label_file.imageData)
 
-        lbl, _ = labelme.utils.shapes_to_label(
-            img_shape=img.shape,
-            shapes=label_file.shapes,
-            label_name_to_value=class_name_to_id,
-        )
-        labelme.utils.lblsave(out_png_file, lbl)
+        try:
+            img = labelme.utils.img_data_to_arr(label_file.imageData)
+            lbl, _ = labelme.utils.shapes_to_label(
+                img_shape=img.shape,
+                shapes=label_file.shapes,
+                label_name_to_value=class_name_to_id,
+            )
+            labelme.utils.lblsave(out_png_file, lbl)
 
-        np.save(out_lbl_file, lbl)
+            # np.save(out_lbl_file, lbl)
 
-        if not args.noviz:
-            try:
+            if not args.noviz:
                 viz = imgviz.label2rgb(
                     label=lbl,
                     img=imgviz.rgb2gray(img),
@@ -100,8 +102,8 @@ def main():
                     loc='rb',
                 )
                 imgviz.io.imsave(out_viz_file, viz)
-            except:
-                pass
+        except Exception as e:
+            print(e)
 
 
 if __name__ == '__main__':

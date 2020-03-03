@@ -65,6 +65,8 @@ def shapes_to_label(img_shape, shapes, label_name_to_value):
         if instance not in instances:
             instances.append(instance)
         ins_id = instances.index(instance) + 1
+        if cls_name not in label_name_to_value:
+            continue
         cls_id = label_name_to_value[cls_name]
 
         mask = shape_to_mask(img_shape[:2], points, shape_type)
